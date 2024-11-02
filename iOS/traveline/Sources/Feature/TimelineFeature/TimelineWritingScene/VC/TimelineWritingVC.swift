@@ -26,7 +26,7 @@ final class TimelineWritingVC: UIViewController {
     
     private enum Constants {
         static let titlePlaceholder: String = "제목 *"
-        static let contentPlaceholder: String = "내용을 입력해주세요. *"
+        static let contentPlaceholder: String = "내용을 입력해주세요. *\n\n부적절하거나 불쾌감을 줄 수 있는 컨텐츠는 제재를 받을 수 있습니다."
         static let complete: String = "완료"
         static let selectTime: String = "시간선택"
         static let selectLocation: String = "장소 선택"

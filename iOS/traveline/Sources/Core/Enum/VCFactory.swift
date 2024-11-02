@@ -21,8 +21,9 @@ enum VCFactory {
     
     static func makeLoginVC() -> LoginVC {
         let repository = AuthRepositoryImpl(network: network)
-        let useCase = LoginUseCaseImpl(repository: repository)
-        let viewModel = LoginViewModel(useCase: useCase)
+        let loginUseCase = LoginUseCaseImpl(repository: repository)
+        let settingUseCase = SettingUseCaseImpl(repository: repository)
+        let viewModel = LoginViewModel(loginUseCase: loginUseCase, settingUseCase: settingUseCase)
         return LoginVC(viewModel: viewModel)
     }
     

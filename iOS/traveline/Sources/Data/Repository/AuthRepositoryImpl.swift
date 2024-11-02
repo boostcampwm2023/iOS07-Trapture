@@ -49,7 +49,7 @@ final class AuthRepositoryImpl: AuthRepository {
     
     func withdrawal(_ request: WithdrawRequest) async throws -> Bool {
         
-        let result = try await network.request(
+        let result: WithdrawalResponseDTO = try await network.request(
             endPoint: AuthEndPoint.withdrawal(request.toDTO()),
             type: WithdrawalResponseDTO.self
         )

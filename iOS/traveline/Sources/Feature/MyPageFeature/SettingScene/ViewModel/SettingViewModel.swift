@@ -64,7 +64,7 @@ final class SettingViewModel: BaseViewModel<SettingAction, SettingSideEffect, Se
             newState.appleIDRequests = [request]
             
         case let .requestWithdraw(isSuccess):
-            newState.moveToLogin = isSuccess
+            newState.moveToLogin = true
             
         case .error:
             break

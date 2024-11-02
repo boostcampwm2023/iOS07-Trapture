@@ -22,7 +22,7 @@ enum LoginAction: BaseAction {
 enum LoginSideEffect: BaseSideEffect {
     case requestAppleLogin(AppleIDRequest)
     case completeAppleLogin(Bool)
-    case loginFailed(Error)
+    case error(Error)
 }
 
 struct LoginState: BaseState {
@@ -32,10 +32,12 @@ struct LoginState: BaseState {
 
 final class LoginViewModel: BaseViewModel<LoginAction, LoginSideEffect, LoginState> {
     
-    private let useCase: LoginUseCase
+    private let loginUseCase: LoginUseCase
+    private let settingUseCase: SettingUseCase
     
-    init(useCase: LoginUseCase) {
-        self.useCase = useCase
+    init(loginUseCase: LoginUseCase, settingUseCase: SettingUseCase) {
+        self.loginUseCase = loginUseCase
+        self.settingUseCase = settingUseCase
     }
     
     override func transform(action: LoginAction) -> SideEffectPublisher {
@@ -61,7 +63,7 @@ final class LoginViewModel: BaseViewModel<LoginAction, LoginSideEffect, LoginSta
         case let .completeAppleLogin(isSuccess):
             newState.isSuccessLogin = isSuccess
             
-        case let .loginFailed(error):
+        case let .error(error):
             print(error)
         }
         
@@ -75,12 +77,12 @@ private extension LoginViewModel {
         let request = appleIDProvider.createRequest()
         request.requestedScopes = [.email]
         
-        return .just(LoginSideEffect.requestAppleLogin(request))
+        return .just(.requestAppleLogin(request))
     }
     
     func handleAppleAuth(_ auth: Auth) -> SideEffectPublisher {
         guard let appleIDCredential = auth.credential as? ASAuthorizationAppleIDCredential else {
-            return .just(LoginSideEffect.completeAppleLogin(false))
+            return .just(.completeAppleLogin(false))
         }
         
         if let identityToken = appleIDCredential.identityToken,
@@ -88,24 +90,34 @@ private extension LoginViewModel {
            let identityTokenString = String(data: identityToken, encoding: .utf8),
            let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) {
             
-            let email = appleIDCredential.email
+            if let email = appleIDCredential.email {
+                let withdrawRequest: WithdrawRequest = .init(
+                    idToken: identityTokenString,
+                    authorizationCode: authorizationCodeString
+                )
+                _ = settingUseCase.requestWithdrawal(withdrawRequest)
+                    .map { isSuccess in
+                        print("result of withdrawal is \(isSuccess)")
+                    }
+            }
+            
             let appleLoginRequest = AppleLoginRequest(
                 idToken: identityTokenString,
-                email: email
+                email: appleIDCredential.email
             )
             
-            return useCase.requestLogin(with: appleLoginRequest)
+            return loginUseCase.requestLogin(with: appleLoginRequest)
                 .map { isSuccess in
                     KeychainList.identityToken = identityTokenString
                     KeychainList.authorizationCode = authorizationCodeString
                     return LoginSideEffect.completeAppleLogin(isSuccess)
                 }
                 .catch { error in
-                    return Just(LoginSideEffect.loginFailed(error))
+                    return Just(.error(error))
                 }
                 .eraseToAnyPublisher()
         }
         
-        return .just(LoginSideEffect.completeAppleLogin(false))
+        return .just(.completeAppleLogin(false))
     }
 }
