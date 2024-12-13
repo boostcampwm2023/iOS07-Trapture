@@ -38,7 +38,7 @@ extension TimelineDetailResponseDTO {
             title: title,
             day: day,
             description: description,
-            imageURL: image,
+            imageURL: Literal.URL.imageBaseURL + (image ?? ""),
             imagePath: imagePath,
             coordX: coordX,
             coordY: coordY,
