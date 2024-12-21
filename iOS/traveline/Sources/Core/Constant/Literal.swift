@@ -20,7 +20,7 @@ enum Literal {
             Bundle.main.object(forInfoDictionaryKey: Literal.InfoPlistKey.prodURL) as? String ?? ""
             #endif
         }
-        static var imageBaseURL: String = URL.baseURL + "/public/"
+        static var imageBaseURL: String = URL.baseURL + "/"
     }
     
     enum InfoPlistKey {
