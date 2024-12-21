@@ -26,10 +26,11 @@ struct PostingResponseDTO: Decodable {
     let withWho: [String]?
     let writer: WriterDTO
     let likeds: String
-    
+
     enum CodingKeys: String, CodingKey {
         case createdAt = "created_at"
-        case id, title, thumbnail, thumbnailPath, period, headcount, budget, location, season, vehicle, theme, withWho, writer, likeds
+        case id, title, thumbnail, thumbnailPath, period, headcount, budget,
+            location, season, vehicle, theme, withWho, writer, likeds
     }
 }
 
@@ -37,17 +38,19 @@ struct PostingResponseDTO: Decodable {
 
 extension PostingResponseDTO {
     func toDomain() -> TravelListInfo {
+        let profile: Profile = .init(
+            id: writer.id,
+            imageURL: writer.avatar ?? Literal.empty,
+            imagePath: writer.avatarPath ?? Literal.empty,
+            name: writer.name
+        )
+        
         return .init(
             id: id,
-            imageURL: thumbnail ?? Literal.empty,
+            imageURL: Literal.URL.imageBaseURL + (thumbnail ?? Literal.empty),
             imagePath: thumbnailPath ?? Literal.empty,
             title: title,
-            profile: .init(
-                id: writer.id ?? Literal.empty,
-                imageURL: writer.avatar ?? Literal.empty,
-                imagePath: writer.avatarPath ?? Literal.empty,
-                name: writer.name
-            ),
+            profile: profile,
             like: Int(likeds) ?? 0,
             isLiked: true,
             tags: [

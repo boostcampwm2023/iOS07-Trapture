@@ -19,7 +19,7 @@ extension UserResponseDTO {
     func toDomain() -> Profile {
         return .init(
             id: id,
-            imageURL: avatar ?? "",
+            imageURL: Literal.URL.imageBaseURL + (avatar ?? ""),
             imagePath: avatarPath ?? "",
             name: name
         )

@@ -12,6 +12,17 @@ enum Literal {
     static let empty: String = ""
     static let boundary: String = "Boundary-\(UUID().uuidString)"
     
+    enum URL {
+        static var baseURL: String {
+            #if DEBUG
+            Bundle.main.object(forInfoDictionaryKey: Literal.InfoPlistKey.devURL) as? String ?? ""
+            #else
+            Bundle.main.object(forInfoDictionaryKey: Literal.InfoPlistKey.prodURL) as? String ?? ""
+            #endif
+        }
+        static var imageBaseURL: String = URL.baseURL + "/"
+    }
+    
     enum InfoPlistKey {
         static let devURL: String = "DevURL"
         static let prodURL: String = "ProdURL"
